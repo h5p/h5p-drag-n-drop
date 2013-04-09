@@ -1,0 +1,15 @@
+{
+  "title": "H5P.DragNDrop",
+  "contentType": "H5P.DragNDrop",
+  "majorVersion": 1,
+  "minorVersion": 0,
+  "patchVersion": 0,
+  "runnable": 0,
+  "machineName": "H5P.DragNDrop",
+  "author": "Frode Petterson",
+  "preloadedJs": [
+    {
+      "path": "scripts/drag-N-drop.js"
+    }
+  ]
+}
