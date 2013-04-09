@@ -9,6 +9,8 @@ var H5P = H5P || {};
 H5P.DragNDrop = function (containerOffset) {
   this.moveThreshold = 4;
   this.containerOffset = containerOffset;
+  this.scrollLeft = 0;
+  this.scrollTop = 0;
   
   if (H5P.$body === undefined) {
     H5P.$body = H5P.jQuery('body');
@@ -73,7 +75,7 @@ H5P.DragNDrop.move = function (event) {
   
   var x = event.pageX - that.adjust.x;
   var y = event.pageY - that.adjust.y;
-  that.$element.css({left: x - that.containerOffset.left, top: y - that.containerOffset.top});
+  that.$element.css({left: x - that.containerOffset.left + that.scrollLeft, top: y - that.containerOffset.top + that.scrollTop});
   
   if (that.moveCallback !== undefined) {
     that.moveCallback(x, y);
