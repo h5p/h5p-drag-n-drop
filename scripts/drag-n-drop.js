@@ -3,18 +3,14 @@ var H5P = H5P || {};
 /**
  * A class that easily helps your create awesome drag and drop.
  *
- * @param {object} containerOffset
+ * @param {jQuery} $container
  * @returns {undefined}
  */
-H5P.DragNDrop = function (containerOffset) {
+H5P.DragNDrop = function ($container) {
   this.moveThreshold = 4;
-  this.containerOffset = containerOffset;
+  this.$container = $container;
   this.scrollLeft = 0;
   this.scrollTop = 0;
-  
-  if (H5P.$body === undefined) {
-    H5P.$body = H5P.jQuery('body');
-  }
 };
 
 /**
@@ -71,6 +67,10 @@ H5P.DragNDrop.move = function (event) {
     else {
       return;
     }
+  }
+  
+  if (that.containerOffset === undefined) {
+    that.containerOffset = that.$container.offset();
   }
   
   var x = event.pageX - that.adjust.x;
