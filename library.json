@@ -9,7 +9,7 @@
   "author": "Frode Petterson",
   "preloadedJs": [
     {
-      "path": "scripts/drag-N-drop.js"
+      "path": "scripts/drag-n-drop.js"
     }
   ]
 }
