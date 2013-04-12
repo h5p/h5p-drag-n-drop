@@ -1,6 +1,7 @@
 {
-  "title": "H5P.DragNDrop",
-  "contentType": "H5P.DragNDrop",
+  "title": "Drag N Drop",
+  "contentType": "Library",
+  "description": "A library that aims to make drag and drop operations easier for other libraries.",
   "majorVersion": 1,
   "minorVersion": 0,
   "patchVersion": 0,
