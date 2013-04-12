@@ -1,7 +1,7 @@
 {
   "title": "Drag N Drop",
-  "contentType": "Library",
-  "description": "A library that aims to make drag and drop operations easier for other libraries.",
+  "contentType": "API",
+  "description": "A library that aims to make drag and drop operations easier for other libraries by providing an api.",
   "majorVersion": 1,
   "minorVersion": 0,
   "patchVersion": 0,
