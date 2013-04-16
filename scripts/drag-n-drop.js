@@ -26,7 +26,7 @@ H5P.DragNDrop.prototype.press = function ($element, x, y) {
     instance: this
   };
   
-  H5P.$body.attr('unselectable', 'on').mouseup(eventData, H5P.DragNDrop.release).bind('mouseleave', eventData, H5P.DragNDrop.release).css({'-moz-user-select': 'none', '-webkit-user-select': 'none', 'user-select': 'none', '-ms-user-select': 'none'}).mousemove(eventData, H5P.DragNDrop.move)[0].onselectstart = function () {
+  H5P.$body.bind('mouseup', eventData, H5P.DragNDrop.release).bind('mouseleave', eventData, H5P.DragNDrop.release).css({'-moz-user-select': 'none', '-webkit-user-select': 'none', 'user-select': 'none', '-ms-user-select': 'none'}).mousemove(eventData, H5P.DragNDrop.move).attr('unselectable', 'on')[0].onselectstart = function () {
     return false;
   };
   
@@ -91,12 +91,12 @@ H5P.DragNDrop.move = function (event) {
 H5P.DragNDrop.release = function (event) {
   var that = event.data.instance;
   
-  H5P.$body.unbind('mousemove', H5P.DragNDrop.move).unbind('mouseup', H5P.DragNDrop.release).removeAttr('style')[0].onselectstart = null;
+  H5P.$body.unbind('mousemove', H5P.DragNDrop.move).unbind('mouseup', H5P.DragNDrop.release).unbind('mouseleave', H5P.DragNDrop.release).css({'-moz-user-select': '', '-webkit-user-select': '', 'user-select': '', '-ms-user-select': ''}).removeAttr('unselectable')[0].onselectstart = null;
     
   if (that.moving) {
     that.$element.removeClass('h5p-moving');
     if (that.stopMovingCallback !== undefined) {
-      that.stopMovingCallback();
+      that.stopMovingCallback(event);
     };
   }
 };
