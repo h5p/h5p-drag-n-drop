@@ -11,7 +11,7 @@ H5P.DragNDrop = function ($container, showCoordinates) {
   this.$container = $container;
   this.scrollLeft = 0;
   this.scrollTop = 0;
-  this.showCoordinates = showCoordinates === undefined ? true : showCoordinates;
+  this.showCoordinates = showCoordinates === undefined ? false : showCoordinates;
 };
 
 /**
@@ -49,9 +49,45 @@ H5P.DragNDrop.prototype.press = function ($element, x, y) {
     y: y - offset.top - this.marginY
   };
   if (this.showCoordinates) {
-    this.$coordinates = H5P.jQuery('<div class="h5p-coordinates-editor" style="z-index: 50; margin-top: -2.2em; background-color: #EEEEEE; border-radius: 0.7em; padding: 0 0.3em; font-size: 12px; position: absolute; top: ' + y + 'px; left: ' + x + 'px;">' + Math.round(this.startX) + ',' + Math.round(this.startY) + '</div>');
+    if (this.$coordinates) {
+      this.$coordinates.remove();
+    }
+    this.$coordinates = H5P.jQuery('<div class="h5p-coordinates-editor" style="top: ' + (y - this.adjust.y) + 'px; left: ' + (x - this.adjust.x) + 'px;"><input class="h5p-coordinate h5p-x-coordinate" type="text" value="x">, <input class="h5p-coordinate h5p-y-coordinate" type="text" value="y"></div>');
+    this.$xCoordinate = this.$coordinates.children('.h5p-x-coordinate').on('change keydown', function(event) {
+      if (event.type == 'change' || event.which == 13) {
+        that.moveToCoordinates();
+      }
+    });
+    this.$yCoordinate = this.$coordinates.children('.h5p-y-coordinate').on('change keydown', function(event) {
+      if (event.type == 'change' || event.which == 13) {
+        that.moveToCoordinates();
+      }
+    });
+
+
     H5P.jQuery('body').append(this.$coordinates);
   }
+};
+
+/**
+ * Move the draggable element to coordinates typed in by the user
+ */
+H5P.DragNDrop.prototype.moveToCoordinates = function () {
+  var x = parseInt(this.$xCoordinate.val());
+  var y = parseInt(this.$yCoordinate.val());
+  if (x == 'NaN' || y == 'NaN') {
+    // Make sure that the NaN doesn't get saved...
+    return;
+  }
+  var event = {
+    data: {
+      instance: this
+    },
+    pageX: this.adjust.x + this.containerOffset.left + this.scrollLeft + parseInt(this.$container.css('padding-left')) + x,
+    pageY: this.adjust.y + this.containerOffset.top + this.scrollTop + y
+  }
+  H5P.DragNDrop.move(event);
+  H5P.DragNDrop.release(event);
 };
 
 /**
@@ -89,7 +125,8 @@ H5P.DragNDrop.move = function (event) {
     that.moveCallback(x, y);
   }
   if (that.showCoordinates) {
-    that.$coordinates.html(Math.round(posX - paddingLeft) + ',' + Math.round(posY));
+    that.$xCoordinate.val(Math.round(posX - paddingLeft));
+    that.$yCoordinate.val(Math.round(posY));
     that.$coordinates.css({left: x, top: y});
   }
 };
@@ -108,10 +145,19 @@ H5P.DragNDrop.release = function (event) {
   if (that.moving) {
     that.$element.removeClass('h5p-moving');
     if (that.stopMovingCallback !== undefined) {
+      var oldPos = that.$element.position();
       that.stopMovingCallback(event);
+      if (that.showCoordinates) {
+        // If stop moving callback moved the element coordinates must be updated with the change
+        var newPos = that.$element.position();
+        var coordinatesOldPos = that.$coordinates.position();
+        that.$coordinates.css('left', parseInt(coordinatesOldPos.left - oldPos.left + newPos.left));
+        that.$coordinates.css('top', parseInt(coordinatesOldPos.top - oldPos.top + newPos.top));
+        var oldX = parseInt(that.$xCoordinate.val());
+        var oldY = parseInt(that.$yCoordinate.val());
+        that.$xCoordinate.val(Math.round(oldX - oldPos.left + newPos.left));
+        that.$yCoordinate.val(Math.round(oldY - oldPos.top + newPos.top));
+      }
     };
-  }
-  if (that.showCoordinates) {
-    that.$coordinates.remove();
   }
 };

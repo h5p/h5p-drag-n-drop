@@ -12,5 +12,10 @@
     {
       "path": "scripts/drag-n-drop.js"
     }
+  ],
+  "preloadedCss": [
+    {
+      "path": "styles/dragndrop.css"
+    }
   ]
 }
