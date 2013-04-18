@@ -52,7 +52,10 @@ H5P.DragNDrop.prototype.press = function ($element, x, y) {
     if (this.$coordinates) {
       this.$coordinates.remove();
     }
-    this.$coordinates = H5P.jQuery('<div class="h5p-coordinates-editor" style="top: ' + (y - this.adjust.y) + 'px; left: ' + (x - this.adjust.x) + 'px;"><input class="h5p-coordinate h5p-x-coordinate" type="text" value="x">, <input class="h5p-coordinate h5p-y-coordinate" type="text" value="y"></div>');
+    var pos = $element.position();
+    var posX = Math.round(pos.left - parseInt(this.$container.css('padding-left')));
+    var posY = Math.round(pos.top);
+    this.$coordinates = H5P.jQuery('<div class="h5p-coordinates-editor" style="top: ' + (y - this.adjust.y) + 'px; left: ' + (x - this.adjust.x) + 'px;"><input class="h5p-coordinate h5p-x-coordinate" type="text" value="' + posX + '">, <input class="h5p-coordinate h5p-y-coordinate" type="text" value="' + posY + '"></div>');
     this.$xCoordinate = this.$coordinates.children('.h5p-x-coordinate').on('change keydown', function(event) {
       if (event.type == 'change' || event.which == 13) {
         that.moveToCoordinates();
@@ -75,7 +78,7 @@ H5P.DragNDrop.prototype.press = function ($element, x, y) {
 H5P.DragNDrop.prototype.moveToCoordinates = function () {
   var x = parseInt(this.$xCoordinate.val());
   var y = parseInt(this.$yCoordinate.val());
-  if (x == 'NaN' || y == 'NaN') {
+  if (isNaN(x) || isNaN(y)) {
     // Make sure that the NaN doesn't get saved...
     return;
   }
