@@ -32,9 +32,8 @@ H5P.DragNDrop.prototype.press = function ($element, x, y) {
     return false;
   };
 
-  if (that.containerOffset === undefined) {
-    that.containerOffset = that.$container.offset();
-  }
+  that.containerOffset = that.$container.offset();
+
   this.$element = $element;
   this.moving = false;
   this.startX = x;
