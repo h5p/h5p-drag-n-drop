@@ -4,6 +4,7 @@ var H5P = H5P || {};
  * A class that easily helps your create awesome drag and drop.
  *
  * @param {jQuery} $container
+ * @param {type} showCoordinates
  * @returns {undefined}
  */
 H5P.DragNDrop = function ($container, showCoordinates) {
@@ -56,12 +57,12 @@ H5P.DragNDrop.prototype.press = function ($element, x, y) {
     var posY = Math.round(pos.top);
     this.$coordinates = H5P.jQuery('<div class="h5p-coordinates-editor" style="top: ' + (y - this.adjust.y) + 'px; left: ' + (x - this.adjust.x) + 'px;"><input class="h5p-coordinate h5p-x-coordinate" type="text" value="' + posX + '">, <input class="h5p-coordinate h5p-y-coordinate" type="text" value="' + posY + '"></div>');
     this.$xCoordinate = this.$coordinates.children('.h5p-x-coordinate').on('change keydown', function(event) {
-      if (event.type == 'change' || event.which == 13) {
+      if (event.type === 'change' || event.which === 13) {
         that.moveToCoordinates();
       }
     });
     this.$yCoordinate = this.$coordinates.children('.h5p-y-coordinate').on('change keydown', function(event) {
-      if (event.type == 'change' || event.which == 13) {
+      if (event.type === 'change' || event.which === 13) {
         that.moveToCoordinates();
       }
     });
@@ -87,7 +88,7 @@ H5P.DragNDrop.prototype.moveToCoordinates = function () {
     },
     pageX: this.adjust.x + this.containerOffset.left + this.scrollLeft + parseInt(this.$container.css('padding-left')) + x,
     pageY: this.adjust.y + this.containerOffset.top + this.scrollTop + y
-  }
+  };
   H5P.DragNDrop.move(event);
   H5P.DragNDrop.release(event);
 };
@@ -143,6 +144,10 @@ H5P.DragNDrop.release = function (event) {
   var that = event.data.instance;
 
   H5P.$body.unbind('mousemove', H5P.DragNDrop.move).unbind('mouseup', H5P.DragNDrop.release).unbind('mouseleave', H5P.DragNDrop.release).css({'-moz-user-select': '', '-webkit-user-select': '', 'user-select': '', '-ms-user-select': ''}).removeAttr('unselectable')[0].onselectstart = null;
+
+  if (that.releaseCallback !== undefined) {
+    that.releaseCallback();
+  }
 
   if (that.moving) {
     that.$element.removeClass('h5p-moving');
