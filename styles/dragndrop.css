@@ -3,6 +3,9 @@
   border: medium none;
   width: 2em;
 }
+.h5p-coordinate:focus {
+  outline: none;
+}
 
 .h5p-coordinates-editor {
   background-color: #EEEEEE;

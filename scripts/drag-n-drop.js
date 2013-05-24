@@ -48,9 +48,12 @@ H5P.DragNDrop.prototype.press = function ($element, x, y) {
     x: x - offset.left + this.marginX,
     y: y - offset.top - this.marginY
   };
+
+  // Add coordinates picker
   if (this.showCoordinates) {
-    if (this.$coordinates) {
+    if (this.$coordinates !== undefined) {
       this.$coordinates.remove();
+      delete this.$coordinates;
     }
     var pos = $element.position();
     var posX = Math.round(pos.left - parseInt(this.$container.css('padding-left')));
@@ -66,7 +69,6 @@ H5P.DragNDrop.prototype.press = function ($element, x, y) {
         that.moveToCoordinates();
       }
     });
-
 
     H5P.jQuery('body').append(this.$coordinates);
   }
@@ -124,13 +126,14 @@ H5P.DragNDrop.move = function (event) {
   var paddingLeft = parseInt(that.$container.css('padding-left'));
   that.$element.css({left: posX, top: posY});
 
-  if (that.moveCallback !== undefined) {
-    that.moveCallback(x, y);
-  }
   if (that.showCoordinates) {
     that.$xCoordinate.val(Math.round(posX - paddingLeft));
     that.$yCoordinate.val(Math.round(posY));
     that.$coordinates.css({left: x, top: y});
+  }
+
+  if (that.moveCallback !== undefined) {
+    that.moveCallback(x, y);
   }
 };
 
