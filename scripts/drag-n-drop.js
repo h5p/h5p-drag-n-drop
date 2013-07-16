@@ -102,6 +102,7 @@ H5P.DragNDrop.prototype.moveToCoordinates = function () {
  * @returns {undefined}
  */
 H5P.DragNDrop.move = function (event) {
+  event.stopPropagation();
   var that = event.data.instance;
 
   if (!that.moving) {
