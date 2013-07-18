@@ -29,7 +29,15 @@ H5P.DragNDrop.prototype.press = function ($element, x, y) {
     instance: this
   };
 
-  H5P.$body.bind('mouseup', eventData, H5P.DragNDrop.release).bind('mouseleave', eventData, H5P.DragNDrop.release).css({'-moz-user-select': 'none', '-webkit-user-select': 'none', 'user-select': 'none', '-ms-user-select': 'none'}).mousemove(eventData, H5P.DragNDrop.move).attr('unselectable', 'on')[0].onselectstart = function () {
+  H5P.$body
+  .bind('mouseup', eventData, H5P.DragNDrop.release)
+  .bind('mouseleave', eventData, H5P.DragNDrop.release)
+  // With user-select: none uncommented, after moving a drag and drop element, if I hover over something that changes transparancy on hover IE10 on WIN7 crashes
+  // TODO: Add user-select and -ms-user-select later if IE10 stops bugging
+  .css({'-moz-user-select': 'none', '-webkit-user-select': 'none'/*, 'user-select': 'none', '-ms-user-select': 'none'*/})
+  .mousemove(eventData, H5P.DragNDrop.move)
+  .attr('unselectable', 'on')[0]
+  .onselectstart = function () {
     return false;
   };
 
@@ -147,7 +155,13 @@ H5P.DragNDrop.move = function (event) {
 H5P.DragNDrop.release = function (event) {
   var that = event.data.instance;
 
-  H5P.$body.unbind('mousemove', H5P.DragNDrop.move).unbind('mouseup', H5P.DragNDrop.release).unbind('mouseleave', H5P.DragNDrop.release).css({'-moz-user-select': '', '-webkit-user-select': '', 'user-select': '', '-ms-user-select': ''}).removeAttr('unselectable')[0].onselectstart = null;
+  H5P.$body
+  .unbind('mousemove', H5P.DragNDrop.move)
+  .unbind('mouseup', H5P.DragNDrop.release)
+  .unbind('mouseleave', H5P.DragNDrop.release)
+  .css({'-moz-user-select': '', '-webkit-user-select': ''/*, 'user-select': '', '-ms-user-select': ''*/})
+  .removeAttr('unselectable')[0]
+  .onselectstart = null;
 
   if (that.releaseCallback !== undefined) {
     that.releaseCallback();
