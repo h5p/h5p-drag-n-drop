@@ -4,7 +4,7 @@
   "description": "A library that aims to make drag and drop operations easier for other libraries by providing an api.",
   "majorVersion": 1,
   "minorVersion": 0,
-  "patchVersion": 7,
+  "patchVersion": 8,
   "runnable": 0,
   "machineName": "H5P.DragNDrop",
   "author": "Frode Petterson",
