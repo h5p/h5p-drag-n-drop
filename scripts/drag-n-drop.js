@@ -130,9 +130,16 @@ H5P.DragNDrop.move = function (event) {
 
   var x = event.pageX - that.adjust.x;
   var y = event.pageY - that.adjust.y;
+
   var posX = x - that.containerOffset.left + that.scrollLeft;
   var posY = y - that.containerOffset.top + that.scrollTop;
   var paddingLeft = parseInt(that.$container.css('padding-left'));
+
+  if (that.snap !== undefined) {
+    posX = Math.round(posX / that.snap) * that.snap;
+    posY = Math.round(posY / that.snap) * that.snap;
+  }
+
   that.$element.css({left: posX, top: posY});
 
   if (that.showCoordinates) {
