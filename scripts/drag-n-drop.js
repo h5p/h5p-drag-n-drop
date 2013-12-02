@@ -37,7 +37,7 @@ H5P.DragNDrop.prototype.press = function ($element, x, y) {
   .css({'-moz-user-select': 'none', '-webkit-user-select': 'none'/*, 'user-select': 'none', '-ms-user-select': 'none'*/})
   .mousemove(eventData, H5P.DragNDrop.move)
   .attr('unselectable', 'on')[0]
-  .onselectstart = function () {
+  .onselectstart = H5P.$body[0].ondragstart = function () {
     return false;
   };
 
@@ -168,7 +168,7 @@ H5P.DragNDrop.release = function (event) {
   .unbind('mouseleave', H5P.DragNDrop.release)
   .css({'-moz-user-select': '', '-webkit-user-select': ''/*, 'user-select': '', '-ms-user-select': ''*/})
   .removeAttr('unselectable')[0]
-  .onselectstart = null;
+  .onselectstart = H5P.$body[0].ondragstart = null;
 
   if (that.releaseCallback !== undefined) {
     that.releaseCallback();
