@@ -1,7 +1,7 @@
 H5P Drag 'n Drop
 ==========
 
-A library that aims to make drag and drop operations easier for other libraries by providing an api.
+Provides a simple api for moving elements around. Could be used for sorting lists and etc.
 
 ## License
 
