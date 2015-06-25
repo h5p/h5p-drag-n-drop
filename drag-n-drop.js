@@ -26,13 +26,14 @@ H5P.DragNDrop.prototype.press = function ($element, x, y) {
     instance: this
   };
 
+  H5P.$window
+    .mousemove(eventData, H5P.DragNDrop.moveHandler)
+    .bind('mouseup', eventData, H5P.DragNDrop.release);
+
   H5P.$body
-    .bind('mouseup', eventData, H5P.DragNDrop.release)
-    .bind('mouseleave', eventData, H5P.DragNDrop.release)
     // With user-select: none uncommented, after moving a drag and drop element, if I hover over something that changes transparancy on hover IE10 on WIN7 crashes
     // TODO: Add user-select and -ms-user-select later if IE10 stops bugging
     .css({'-moz-user-select': 'none', '-webkit-user-select': 'none'/*, 'user-select': 'none', '-ms-user-select': 'none'*/})
-    .mousemove(eventData, H5P.DragNDrop.moveHandler)
     .attr('unselectable', 'on')[0]
     .onselectstart = H5P.$body[0].ondragstart = function () {
       return false;
@@ -98,6 +99,26 @@ H5P.DragNDrop.prototype.move = function (x, y) {
     posY = Math.round(posY / that.snap) * that.snap;
   }
 
+  // Do not move outside of minimum values.
+  if (that.min !== undefined) {
+    if (posX < that.min.x) {
+      posX = that.min.x;
+    }
+    if (posY < that.min.y) {
+      posY = that.min.y;
+    }
+  }
+
+  // Do not move outside of maximum values.
+  if (that.max !== undefined) {
+    if (posX > that.max.x) {
+      posX = that.max.x;
+    }
+    if (posY > that.max.y) {
+      posY = that.max.y;
+    }
+  }
+
   that.$element.css({left: posX, top: posY});
 
   if (that.moveCallback !== undefined) {
@@ -114,10 +135,11 @@ H5P.DragNDrop.prototype.move = function (x, y) {
 H5P.DragNDrop.release = function (event) {
   var that = event.data.instance;
 
-  H5P.$body
+  H5P.$window
     .unbind('mousemove', H5P.DragNDrop.moveHandler)
-    .unbind('mouseup', H5P.DragNDrop.release)
-    .unbind('mouseleave', H5P.DragNDrop.release)
+    .unbind('mouseup', H5P.DragNDrop.release);
+
+  H5P.$body
     .css({'-moz-user-select': '', '-webkit-user-select': ''/*, 'user-select': '', '-ms-user-select': ''*/})
     .removeAttr('unselectable')[0]
     .onselectstart = H5P.$body[0].ondragstart = null;
