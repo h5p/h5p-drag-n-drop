@@ -103,9 +103,11 @@ H5P.DragNDrop.prototype.move = function (x, y) {
   if (that.min !== undefined) {
     if (posX < that.min.x) {
       posX = that.min.x;
+      x = that.min.x + that.containerOffset.left - that.scrollLeft;
     }
     if (posY < that.min.y) {
       posY = that.min.y;
+      y = that.min.y + that.containerOffset.top - that.scrollTop;
     }
   }
 
@@ -113,9 +115,11 @@ H5P.DragNDrop.prototype.move = function (x, y) {
   if (that.max !== undefined) {
     if (posX > that.max.x) {
       posX = that.max.x;
+      x = that.max.x + that.containerOffset.left - that.scrollLeft;
     }
     if (posY > that.max.y) {
       posY = that.max.y;
+      y = that.max.y + that.containerOffset.top - that.scrollTop;
     }
   }
 
