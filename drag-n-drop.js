@@ -126,7 +126,7 @@ H5P.DragNDrop.prototype.move = function (x, y) {
   that.$element.css({left: posX, top: posY});
 
   if (that.moveCallback !== undefined) {
-    that.moveCallback(x, y);
+    that.moveCallback(x, y, that.$element);
   }
 };
 
