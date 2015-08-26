@@ -61,7 +61,7 @@ H5P.DragNDrop.prototype.press = function ($element, x, y) {
 /**
  * Handles mouse move events.
  *
- * @param {Event} event
+ * @param {Event} event
  */
 H5P.DragNDrop.moveHandler = function (event) {
   event.stopPropagation();
