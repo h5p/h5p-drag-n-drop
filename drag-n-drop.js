@@ -56,6 +56,10 @@ H5P.DragNDrop.prototype.press = function ($element, x, y) {
     x: x - offset.left + this.marginX,
     y: y - offset.top - this.marginY
   };
+
+  if (that.dnb.newElement) {
+    this.move(x, y);
+  }
 };
 
 /**
