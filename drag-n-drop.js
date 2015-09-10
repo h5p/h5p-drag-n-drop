@@ -3,10 +3,12 @@ var H5P = H5P || {};
 /**
  * A class that easily helps your create awesome drag and drop.
  *
+ * @param {H5P.DragNBar} DnB
  * @param {jQuery} $container
  * @returns {undefined}
  */
-H5P.DragNDrop = function ($container) {
+H5P.DragNDrop = function (dnb, $container) {
+  this.dnb = dnb;
   this.$container = $container;
   this.scrollLeft = 0;
   this.scrollTop = 0;
@@ -55,7 +57,9 @@ H5P.DragNDrop.prototype.press = function ($element, x, y) {
     y: y - offset.top - this.marginY
   };
 
-  this.move(x, y);
+  if (that.dnb.newElement) {
+    this.move(x, y);
+  }
 };
 
 /**
@@ -111,6 +115,10 @@ H5P.DragNDrop.prototype.move = function (x, y) {
     }
   }
 
+  if (that.dnb.newElement && posY >= 0) {
+    that.min.y = 0;
+  }
+
   // Do not move outside of maximum values.
   if (that.max !== undefined) {
     if (posX > that.max.x) {
@@ -125,8 +133,10 @@ H5P.DragNDrop.prototype.move = function (x, y) {
 
   that.$element.css({left: posX, top: posY});
 
+  that.dnb.updateCoordinates();
+
   if (that.moveCallback !== undefined) {
-    that.moveCallback(x, y);
+    that.moveCallback(x, y, that.$element);
   }
 };
 
