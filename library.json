@@ -4,7 +4,7 @@
   "description": "Provides a simple api for moving elements around. Could be used for sorting lists and etc.",
   "majorVersion": 1,
   "minorVersion": 0,
-  "patchVersion": 13,
+  "patchVersion": 15,
   "runnable": 0,
   "machineName": "H5P.DragNDrop",
   "author": "Frode Petterson",
