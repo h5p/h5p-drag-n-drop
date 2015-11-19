@@ -8,11 +8,16 @@ var H5P = H5P || {};
  * @returns {undefined}
  */
 H5P.DragNDrop = function (dnb, $container) {
+  H5P.EventDispatcher.call(this);
   this.dnb = dnb;
   this.$container = $container;
   this.scrollLeft = 0;
   this.scrollTop = 0;
 };
+
+// Inherit support for events
+H5P.DragNDrop.prototype = Object.create(H5P.EventDispatcher.prototype);
+H5P.DragNDrop.prototype.constructor = H5P.DragNDrop;
 
 /**
  * Start tracking the mouse.
@@ -89,6 +94,18 @@ H5P.DragNDrop.prototype.move = function (x, y) {
     // Start moving
     that.moving = true;
     that.$element.addClass('h5p-moving');
+  }
+
+  // Show transform panel if element has moved
+  if (!that.snap && (x !== that.startX || y !== that.startY)) {
+    that.trigger('showTransformPanel');
+  }
+  else if (that.snap) {
+    var xChanged = (Math.round(x / that.snap) * that.snap) !== (Math.round(that.startX / that.snap) * that.snap);
+    var yChanged = (Math.round(y / that.snap) * that.snap) !== (Math.round(that.startY / that.snap) * that.snap);
+    if (xChanged || yChanged) {
+      that.trigger('showTransformPanel');
+    }
   }
 
   x -= that.adjust.x;
