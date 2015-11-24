@@ -96,24 +96,11 @@ H5P.DragNDrop.prototype.move = function (x, y) {
     that.$element.addClass('h5p-moving');
   }
 
-  // Show transform panel if element has moved
-  if (!that.snap && (x !== that.startX || y !== that.startY)) {
-    that.trigger('showTransformPanel');
-  }
-  else if (that.snap) {
-    var xChanged = (Math.round(x / that.snap) * that.snap) !== (Math.round(that.startX / that.snap) * that.snap);
-    var yChanged = (Math.round(y / that.snap) * that.snap) !== (Math.round(that.startY / that.snap) * that.snap);
-    if (xChanged || yChanged) {
-      that.trigger('showTransformPanel');
-    }
-  }
-
   x -= that.adjust.x;
   y -= that.adjust.y;
 
   var posX = x - that.containerOffset.left + that.scrollLeft;
   var posY = y - that.containerOffset.top + that.scrollTop;
-
 
   if (that.snap !== undefined) {
     posX = Math.round(posX / that.snap) * that.snap;
@@ -145,6 +132,22 @@ H5P.DragNDrop.prototype.move = function (x, y) {
     if (posY > that.max.y) {
       posY = that.max.y;
       y = that.max.y + that.containerOffset.top - that.scrollTop;
+    }
+  }
+
+  // Show transform panel if element has moved
+  var startX = that.startX - that.adjust.x - that.containerOffset.left + that.scrollLeft;
+  var startY = that.startY - that.adjust.y - that.containerOffset.top + that.scrollTop;
+  if (!that.snap && (posX !== startX || posY !== startY)) {
+    that.trigger('showTransformPanel');
+  }
+  else if (that.snap) {
+    var xChanged = (Math.round(posX / that.snap) * that.snap) !==
+      (Math.round(startX / that.snap) * that.snap);
+    var yChanged = (Math.round(posY / that.snap) * that.snap) !==
+      (Math.round(startY / that.snap) * that.snap);
+    if (xChanged || yChanged) {
+      that.trigger('showTransformPanel');
     }
   }
 
