@@ -8,11 +8,16 @@ var H5P = H5P || {};
  * @returns {undefined}
  */
 H5P.DragNDrop = function (dnb, $container) {
+  H5P.EventDispatcher.call(this);
   this.dnb = dnb;
   this.$container = $container;
   this.scrollLeft = 0;
   this.scrollTop = 0;
 };
+
+// Inherit support for events
+H5P.DragNDrop.prototype = Object.create(H5P.EventDispatcher.prototype);
+H5P.DragNDrop.prototype.constructor = H5P.DragNDrop;
 
 /**
  * Start tracking the mouse.
@@ -97,7 +102,6 @@ H5P.DragNDrop.prototype.move = function (x, y) {
   var posX = x - that.containerOffset.left + that.scrollLeft;
   var posY = y - that.containerOffset.top + that.scrollTop;
 
-
   if (that.snap !== undefined) {
     posX = Math.round(posX / that.snap) * that.snap;
     posY = Math.round(posY / that.snap) * that.snap;
@@ -128,6 +132,22 @@ H5P.DragNDrop.prototype.move = function (x, y) {
     if (posY > that.max.y) {
       posY = that.max.y;
       y = that.max.y + that.containerOffset.top - that.scrollTop;
+    }
+  }
+
+  // Show transform panel if element has moved
+  var startX = that.startX - that.adjust.x - that.containerOffset.left + that.scrollLeft;
+  var startY = that.startY - that.adjust.y - that.containerOffset.top + that.scrollTop;
+  if (!that.snap && (posX !== startX || posY !== startY)) {
+    that.trigger('showTransformPanel');
+  }
+  else if (that.snap) {
+    var xChanged = (Math.round(posX / that.snap) * that.snap) !==
+      (Math.round(startX / that.snap) * that.snap);
+    var yChanged = (Math.round(posY / that.snap) * that.snap) !==
+      (Math.round(startY / that.snap) * that.snap);
+    if (xChanged || yChanged) {
+      that.trigger('showTransformPanel');
     }
   }
 
