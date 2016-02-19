@@ -62,7 +62,7 @@ H5P.DragNDrop.prototype.press = function ($element, x, y) {
     y: y - offset.top - this.marginY
   };
 
-  if (that.dnb.newElement) {
+  if (that.dnb && that.dnb.newElement) {
     this.move(x, y);
   }
 };
@@ -119,7 +119,8 @@ H5P.DragNDrop.prototype.move = function (x, y) {
     }
   }
 
-  if (that.dnb.newElement && posY >= 0) {
+
+  if (that.dnb && that.dnb.newElement && posY >= 0) {
     that.min.y = 0;
   }
 
@@ -153,7 +154,9 @@ H5P.DragNDrop.prototype.move = function (x, y) {
 
   that.$element.css({left: posX, top: posY});
 
-  that.dnb.updateCoordinates();
+  if (that.dnb) {
+    that.dnb.updateCoordinates();
+  }
 
   if (that.moveCallback !== undefined) {
     that.moveCallback(x, y, that.$element);
