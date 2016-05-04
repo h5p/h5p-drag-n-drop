@@ -20,6 +20,16 @@ H5P.DragNDrop.prototype = Object.create(H5P.EventDispatcher.prototype);
 H5P.DragNDrop.prototype.constructor = H5P.DragNDrop;
 
 /**
+ * Set the current element
+ * 
+ * @method setElement
+ * @param  {j@uery} $element
+ */
+H5P.DragNDrop.prototype.setElement = function ($element) {
+  this.$element = $element;
+};
+
+/**
  * Start tracking the mouse.
  *
  * @param {jQuery} $element
