@@ -201,4 +201,8 @@ H5P.DragNDrop.release = function (event) {
       that.stopMovingCallback(event);
     }
   }
+
+  // trigger to hide the transform panel unless it was activated
+  // through the context menu
+  that.trigger('hideTransformPanel');
 };
