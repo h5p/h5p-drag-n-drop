@@ -97,14 +97,12 @@ H5P.DragNDrop.moveHandler = function (event) {
  * @param {number} y
  */
 H5P.DragNDrop.prototype.move = function (x, y) {
-  var that = this;
-
   let angle;
   let setAngle = false;
 
   // Finding angle on element in the css-transform
   if(!setAngle) {
-    const styleElement = window.getComputedStyle(that.$element[0]);
+    const styleElement = window.getComputedStyle(this.$element[0]);
     const matrix = styleElement.getPropertyValue("transform");
     if (matrix !== "none") {
       const values = matrix.split("(")[1].split(")")[0].split(",");
@@ -117,7 +115,7 @@ H5P.DragNDrop.prototype.move = function (x, y) {
 
   // Finding corner positions to ensure the element is never outside the container borders
   // *************************************************************************************
-  const theElement = that.$element[0];
+  const theElement = this.$element[0];
 
   let left;
   let top;
@@ -179,80 +177,80 @@ H5P.DragNDrop.prototype.move = function (x, y) {
   // Done finding corner positions
   // ***********************************************************************************
 
-  if (!that.moving) {
-    if (that.startMovingCallback !== undefined && !that.startMovingCallback(x, y)) {
+  if (!this.moving) {
+    if (this.startMovingCallback !== undefined && !this.startMovingCallback(x, y)) {
       return;
     }
 
     // Start moving
-    that.moving = true;
-    that.$element.addClass('h5p-moving');
+    this.moving = true;
+    this.$element.addClass('h5p-moving');
   }
 
-  x -= that.adjust.x;
-  y -= that.adjust.y;
+  x -= this.adjust.x;
+  y -= this.adjust.y;
 
-  var posX = x - that.containerOffset.left + that.scrollLeft;
-  var posY = y - that.containerOffset.top + that.scrollTop;
+  var posX = x - this.containerOffset.left + this.scrollLeft;
+  var posY = y - this.containerOffset.top + this.scrollTop;
 
-  if (that.snap !== undefined) {
-    posX = Math.round(posX / that.snap) * that.snap;
-    posY = Math.round(posY / that.snap) * that.snap;
+  if (this.snap !== undefined) {
+    posX = Math.round(posX / this.snap) * this.snap;
+    posY = Math.round(posY / this.snap) * this.snap;
   }
 
   // Do not move outside of minimum values.
   // Adjusted values are added when the element is rotated.
-  if (that.min !== undefined) {
-    if ((posX - leftmostPointAdjust) < that.min.x) {
-      posX = that.min.x + leftmostPointAdjust;
-      x = that.min.x + that.containerOffset.left - that.scrollLeft;
+  if (this.min !== undefined) {
+    if ((posX - leftmostPointAdjust) < this.min.x) {
+      posX = this.min.x + leftmostPointAdjust;
+      x = this.min.x + this.containerOffset.left - this.scrollLeft;
     }
-    if (posY - topmostPointAdjust < that.min.y) {
-      posY = that.min.y + topmostPointAdjust;
-      y = that.min.y + that.containerOffset.top - that.scrollTop;
+    if (posY - topmostPointAdjust < this.min.y) {
+      posY = this.min.y + topmostPointAdjust;
+      y = this.min.y + this.containerOffset.top - this.scrollTop;
     }
   }
-  if (that.dnb && that.dnb.newElement && posY >= 0) {
-    that.min.y = 0;
+  if (this.dnb && this.dnb.newElement && posY >= 0) {
+    this.min.y = 0;
   }
 
   // Do not move outside of maximum values.
-  if (that.max !== undefined) {
-    if ((posX + width + rightmostPointAdjust) > (that.max.x + width)) {
-      posX = that.max.x - rightmostPointAdjust;
-      x = that.max.x + that.containerOffset.left - that.scrollLeft;
+  if (this.max !== undefined) {
+    if ((posX + width + rightmostPointAdjust) > (this.max.x + width)) {
+      posX = this.max.x - rightmostPointAdjust;
+      x = this.max.x + this.containerOffset.left - this.scrollLeft;
     }
-    if (posY + height + bottommostPointAdjust > (that.max.y + height)) {
-      posY = that.max.y - bottommostPointAdjust;
-      y = that.max.y + that.containerOffset.top - that.scrollTop;
+    if (posY + height + bottommostPointAdjust > (this.max.y + height)) {
+      posY = this.max.y - bottommostPointAdjust;
+      y = this.max.y + this.containerOffset.top - this.scrollTop;
     }
   }
 
   // Show transform panel if element has moved
-  var startX = that.startX - that.adjust.x - that.containerOffset.left + that.scrollLeft;
-  var startY = that.startY - that.adjust.y - that.containerOffset.top + that.scrollTop;
-  if (!that.snap && (posX !== startX || posY !== startY)) {
-    that.trigger('showTransformPanel');
+  var startX = this.startX - this.adjust.x - this.containerOffset.left + this.scrollLeft;
+  var startY = this.startY - this.adjust.y - this.containerOffset.top + this.scrollTop;
+  if (!this.snap && (posX !== startX || posY !== startY)) {
+    this.trigger('showTransformPanel');
   }
-  else if (that.snap) {
-    var xChanged = (Math.round(posX / that.snap) * that.snap) !==
-      (Math.round(startX / that.snap) * that.snap);
-    var yChanged = (Math.round(posY / that.snap) * that.snap) !==
-      (Math.round(startY / that.snap) * that.snap);
+  else if (this.snap) {
+    var xChanged = (Math.round(posX / this.snap) * this.snap) !==
+      (Math.round(startX / this.snap) * this.snap);
+    var yChanged = (Math.round(posY / this.snap) * this.snap) !==
+      (Math.round(startY / this.snap) * this.snap);
     if (xChanged || yChanged) {
-      that.trigger('showTransformPanel');
+      this.trigger('showTransformPanel');
     }
   }
 
   // Moving the element to the calculated position
-  that.$element.css({left: posX - transformCSSTranslateX, top: posY - transformCSSTranslateY});
+  this.$element.css({left: posX - transformCSSTranslateX, top: posY - transformCSSTranslateY});
 
-  if (that.dnb) {
-    that.dnb.updateCoordinates();
+  if (this.dnb) {
+    this.dnb.updateCoordinates();
   }
 
-  if (that.moveCallback !== undefined) {
-    that.moveCallback(x, y, that.$element);
+  if (this.moveCallback !== undefined) {
+    this.moveCallback(x, y, this.$element);
   }
 };
 
