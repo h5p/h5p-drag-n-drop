@@ -115,8 +115,8 @@ H5P.DragNDrop.prototype.move = function (x, y) {
     setAngle = true;
   }
 
-  // Finding corner positions
-  // *************************************************************************
+  // Finding corner positions to ensure the element is never outside the container borders
+  // *************************************************************************************
   const theElement = that.$element[0];
 
   let left;
@@ -201,7 +201,7 @@ H5P.DragNDrop.prototype.move = function (x, y) {
   }
 
   // Do not move outside of minimum values.
-  // Adjusted values are added when the element is rotated
+  // Adjusted values are added when the element is rotated.
   if (that.min !== undefined) {
     if ((posX - leftmostPointAdjust) < that.min.x) {
       posX = that.min.x + leftmostPointAdjust;
@@ -244,6 +244,7 @@ H5P.DragNDrop.prototype.move = function (x, y) {
     }
   }
 
+  // Moving the element to the calculated position
   that.$element.css({left: posX - transformCSSTranslateX, top: posY - transformCSSTranslateY});
 
   if (that.dnb) {
@@ -255,9 +256,10 @@ H5P.DragNDrop.prototype.move = function (x, y) {
   }
 };
 
+// Find position relative to origin by knowing origin, angle and distance
 H5P.DragNDrop.prototype.findNewPoint = function (originX, originY, angle, distance) {
+  
   let result = [];
-
   result.push(Math.cos(angle * Math.PI / 180) * distance + originX);
   result.push(-Math.sin(angle * Math.PI / 180) * distance + originY);
 
