@@ -190,8 +190,9 @@ H5P.DragNDrop.prototype.move = function (x, y) {
   x -= this.adjust.x;
   y -= this.adjust.y;
 
-  var posX = x - this.containerOffset.left + this.scrollLeft;
-  var posY = y - this.containerOffset.top + this.scrollTop;
+  // Adding leftmostPointAdjust and topmostPointAdjust to prevent rotated elements jumping when dragged.
+  var posX = x - this.containerOffset.left + this.scrollLeft + leftmostPointAdjust;
+  var posY = y - this.containerOffset.top + this.scrollTop + topmostPointAdjust;
 
   if (this.snap !== undefined) {
     posX = Math.round(posX / this.snap) * this.snap;
