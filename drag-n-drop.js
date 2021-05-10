@@ -96,8 +96,18 @@ H5P.DragNDrop.moveHandler = function (event) {
  * @param {number} x
  * @param {number} y
  */
-H5P.DragNDrop.prototype.move = function (x, y) {
-  let angle;
+H5P.DragNDrop.prototype.move = function (x, y) {  
+  if (!this.moving) {
+    if (this.startMovingCallback !== undefined && !this.startMovingCallback(x, y)) {
+      return;
+    }
+
+    // Start moving
+    this.moving = true;
+    this.$element.addClass('h5p-moving');
+  }
+  
+  let angle = 0;
   let setAngle = false;
 
   // Finding angle on element in the css-transform
@@ -125,8 +135,12 @@ H5P.DragNDrop.prototype.move = function (x, y) {
   // When scaling the element by dragging on the 'dots', the transform-value is changing, not left and top, as it is when 'moving'/'dragging' the element.
   // So we find the values 'translate x and y' and add them to left and top.
   const transformCSSTranslateXYArray = theElement.style.transform.split("px");
-  const transformCSSTranslateX = (parseInt(transformCSSTranslateXYArray[0].match(/-?\d+/g)));
-  const transformCSSTranslateY = (parseInt(transformCSSTranslateXYArray[1].match(/-?\d+/g)));
+  let transformCSSTranslateX = 0;
+  let transformCSSTranslateY = 0;
+  if(transformCSSTranslateXYArray[0] != "") {
+    transformCSSTranslateX = (parseInt(transformCSSTranslateXYArray[0].match(/-?\d+/g)));
+    transformCSSTranslateY = (parseInt(transformCSSTranslateXYArray[1].match(/-?\d+/g)));
+  }
 
   if(theElement.style.left.includes("%")) {
     left = this.containerWidth * parseInt(theElement.style.left) / 100 + transformCSSTranslateX;
@@ -140,12 +154,18 @@ H5P.DragNDrop.prototype.move = function (x, y) {
   }
   if(theElement.style.width.includes("%")) {
     width = this.containerWidth * parseInt(theElement.style.width) / 100;
-  } else {
+  } else if(theElement.style.width.includes("em")) {
+    width = parseFloat(theElement.style.width) * 16;
+  } 
+  else {
     width = parseInt(theElement.style.width)
   }
   if(theElement.style.height.includes("%")) {
     height = this.containerHeight * parseInt(theElement.style.height) / 100;
-  } else {
+  } else if(theElement.style.width.includes("em")) {
+    height = parseFloat(theElement.style.height) * 16;
+  }
+  else {
     height = parseInt(theElement.style.height)
   }
   
@@ -176,16 +196,6 @@ H5P.DragNDrop.prototype.move = function (x, y) {
   const bottommostPointAdjust = bottommostPoint - (top + height);
   // Done finding corner positions
   // ***********************************************************************************
-
-  if (!this.moving) {
-    if (this.startMovingCallback !== undefined && !this.startMovingCallback(x, y)) {
-      return;
-    }
-
-    // Start moving
-    this.moving = true;
-    this.$element.addClass('h5p-moving');
-  }
 
   x -= this.adjust.x;
   y -= this.adjust.y;
@@ -243,6 +253,8 @@ H5P.DragNDrop.prototype.move = function (x, y) {
     }
   }
 
+  // console.log(posX, posY);
+  // console.log(transformCSSTranslateX, transformCSSTranslateY);
   // Moving the element to the calculated position
   this.$element.css({left: posX - transformCSSTranslateX, top: posY - transformCSSTranslateY});
 
@@ -250,7 +262,7 @@ H5P.DragNDrop.prototype.move = function (x, y) {
     this.dnb.updateCoordinates();
   }
 
-  if (this.moveCallback !== undefined) {
+  if (this.moveCallback) {
     this.moveCallback(x, y, this.$element);
   }
 };
