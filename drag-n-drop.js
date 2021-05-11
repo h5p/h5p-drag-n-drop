@@ -253,8 +253,6 @@ H5P.DragNDrop.prototype.move = function (x, y) {
     }
   }
 
-  // console.log(posX, posY);
-  // console.log(transformCSSTranslateX, transformCSSTranslateY);
   // Moving the element to the calculated position
   this.$element.css({left: posX - transformCSSTranslateX, top: posY - transformCSSTranslateY});
 
