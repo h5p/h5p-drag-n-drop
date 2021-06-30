@@ -63,6 +63,9 @@ H5P.DragNDrop.prototype.press = function ($element, x, y) {
   this.startX = x;
   this.startY = y;
 
+  this.containerWidth = this.$container[0].getBoundingClientRect().width;
+  this.containerHeight = this.$container[0].getBoundingClientRect().height;
+
   this.marginX = parseInt($element.css('marginLeft')) + parseInt($element.css('marginRight'));
   this.marginY = parseInt($element.css('marginTop')) + parseInt($element.css('marginBottom'));
 
@@ -93,85 +96,184 @@ H5P.DragNDrop.moveHandler = function (event) {
  * @param {number} x
  * @param {number} y
  */
-H5P.DragNDrop.prototype.move = function (x, y) {
-  var that = this;
-
-  if (!that.moving) {
-    if (that.startMovingCallback !== undefined && !that.startMovingCallback(x, y)) {
+H5P.DragNDrop.prototype.move = function (x, y) {  
+  if (!this.moving) {
+    if (this.startMovingCallback !== undefined && !this.startMovingCallback(x, y)) {
       return;
     }
 
     // Start moving
-    that.moving = true;
-    that.$element.addClass('h5p-moving');
+    this.moving = true;
+    this.$element.addClass('h5p-moving');
+  }
+  
+  let angle = 0;
+  let setAngle = false;
+
+  // Finding angle on element in the css-transform
+  if(!setAngle) {
+    const styleElement = window.getComputedStyle(this.$element[0]);
+    const matrix = styleElement.getPropertyValue("transform");
+    if (matrix !== "none") {
+      const values = matrix.split("(")[1].split(")")[0].split(",");
+      const a = values[0];
+      const b = values[1];
+      angle = Math.round(Math.atan2(b, a) * (180 / Math.PI));
+    }
+    setAngle = true;
   }
 
-  x -= that.adjust.x;
-  y -= that.adjust.y;
+  // Finding corner positions to ensure the element is never outside the container borders
+  // *************************************************************************************
+  const theElement = this.$element[0];
 
-  var posX = x - that.containerOffset.left + that.scrollLeft;
-  var posY = y - that.containerOffset.top + that.scrollTop;
+  let left;
+  let top;
+  let width;
+  let height;
+  
+  // When scaling the element by dragging on the 'dots', the transform-value is changing, not left and top, as it is when 'moving'/'dragging' the element.
+  // So we find the values 'translate x and y' and add them to left and top.
+  const transformCSSTranslateXYArray = theElement.style.transform.split("px");
+  let transformCSSTranslateX = 0;
+  let transformCSSTranslateY = 0;
+  if(transformCSSTranslateXYArray[0] != "") {
+    transformCSSTranslateX = (parseInt(transformCSSTranslateXYArray[0].match(/-?\d+/g)));
+    transformCSSTranslateY = (parseInt(transformCSSTranslateXYArray[1].match(/-?\d+/g)));
+  }
 
-  if (that.snap !== undefined) {
-    posX = Math.round(posX / that.snap) * that.snap;
-    posY = Math.round(posY / that.snap) * that.snap;
+  if(theElement.style.left.includes("%")) {
+    left = this.containerWidth * parseInt(theElement.style.left) / 100 + transformCSSTranslateX;
+  } else {
+    left = parseInt(theElement.style.left) + transformCSSTranslateX;
+  }
+  if(theElement.style.top.includes("%")) {
+    top = this.containerHeight * parseInt(theElement.style.top) / 100 + transformCSSTranslateY;
+  } else {
+    top = parseInt(theElement.style.top) + transformCSSTranslateY;
+  }
+  if(theElement.style.width.includes("%")) {
+    width = this.containerWidth * parseInt(theElement.style.width) / 100;
+  } else if(theElement.style.width.includes("em")) {
+    width = parseFloat(theElement.style.width) * 16;
+  } 
+  else {
+    width = parseInt(theElement.style.width)
+  }
+  if(theElement.style.height.includes("%")) {
+    height = this.containerHeight * parseInt(theElement.style.height) / 100;
+  } else if(theElement.style.width.includes("em")) {
+    height = parseFloat(theElement.style.height) * 16;
+  }
+  else {
+    height = parseInt(theElement.style.height)
+  }
+  
+  let origin = [left + 0.5 * width, top + 0.5 * height];
+
+  const topRightCorner0DegreesPos = [origin[0] + 0.5 * width, origin[1] - 0.5 * height];
+  const topLeftCorner0DegreesPos = [origin[0] - 0.5 * width, origin[1] - 0.5 * height];
+  
+  const angleTopRight0Degrees = Math.atan2(origin[1] - topRightCorner0DegreesPos[1], topRightCorner0DegreesPos[0] - origin[0]) * 180 / Math.PI;
+  const angleTopLeft0Degrees = Math.atan2(origin[1] - topLeftCorner0DegreesPos[1], topLeftCorner0DegreesPos[0] - origin[0]) * 180 / Math.PI;
+  const angleBottomRight0Degrees = -angleTopRight0Degrees;
+  const angleBottomLeft0Degrees = -angleTopLeft0Degrees;
+
+  const hypToCorners = Math.sqrt(Math.pow((width/2),2) + Math.pow((height/2),2));
+
+  const newPosTopRightCorner = this.findNewPoint(origin[0], origin[1], (angleTopRight0Degrees - angle), hypToCorners);
+  const newPosTopleftCorner = this.findNewPoint(origin[0], origin[1], (angleTopLeft0Degrees - angle), hypToCorners);
+  const newPosBottomRightCorner = this.findNewPoint(origin[0], origin[1], (angleBottomRight0Degrees - angle), hypToCorners);
+  const newPosBottomLeftCorner = this.findNewPoint(origin[0], origin[1], (angleBottomLeft0Degrees - angle), hypToCorners);
+
+  const rightmostPoint = Math.max(newPosTopRightCorner[0], newPosTopleftCorner[0], newPosBottomLeftCorner[0], newPosBottomRightCorner[0]);
+  const rightmostPointAdjust = rightmostPoint - (left + width);
+  const leftmostPoint = Math.min(newPosTopRightCorner[0], newPosTopleftCorner[0], newPosBottomLeftCorner[0], newPosBottomRightCorner[0]);
+  const leftmostPointAdjust = left - leftmostPoint;
+  const topmostPoint = Math.min(newPosTopRightCorner[1], newPosTopleftCorner[1], newPosBottomLeftCorner[1], newPosBottomRightCorner[1]);
+  const topmostPointAdjust = top - topmostPoint;
+  const bottommostPoint = Math.max(newPosTopRightCorner[1], newPosTopleftCorner[1], newPosBottomLeftCorner[1], newPosBottomRightCorner[1]);
+  const bottommostPointAdjust = bottommostPoint - (top + height);
+  // Done finding corner positions
+  // ***********************************************************************************
+
+  x -= this.adjust.x;
+  y -= this.adjust.y;
+
+  // Adding leftmostPointAdjust and topmostPointAdjust to prevent rotated elements jumping when dragged.
+  var posX = x - this.containerOffset.left + this.scrollLeft + leftmostPointAdjust;
+  var posY = y - this.containerOffset.top + this.scrollTop + topmostPointAdjust;
+
+  if (this.snap !== undefined) {
+    posX = Math.round(posX / this.snap) * this.snap;
+    posY = Math.round(posY / this.snap) * this.snap;
   }
 
   // Do not move outside of minimum values.
-  if (that.min !== undefined) {
-    if (posX < that.min.x) {
-      posX = that.min.x;
-      x = that.min.x + that.containerOffset.left - that.scrollLeft;
+  // Adjusted values are added when the element is rotated.
+  if (this.min !== undefined) {
+    if ((posX - leftmostPointAdjust) < this.min.x) {
+      posX = this.min.x + leftmostPointAdjust;
+      x = this.min.x + this.containerOffset.left - this.scrollLeft;
     }
-    if (posY < that.min.y) {
-      posY = that.min.y;
-      y = that.min.y + that.containerOffset.top - that.scrollTop;
+    if (posY - topmostPointAdjust < this.min.y) {
+      posY = this.min.y + topmostPointAdjust;
+      y = this.min.y + this.containerOffset.top - this.scrollTop;
     }
   }
-
-
-  if (that.dnb && that.dnb.newElement && posY >= 0) {
-    that.min.y = 0;
+  if (this.dnb && this.dnb.newElement && posY >= 0) {
+    this.min.y = 0;
   }
 
   // Do not move outside of maximum values.
-  if (that.max !== undefined) {
-    if (posX > that.max.x) {
-      posX = that.max.x;
-      x = that.max.x + that.containerOffset.left - that.scrollLeft;
+  if (this.max !== undefined) {
+    if ((posX + width + rightmostPointAdjust) > (this.max.x + width)) {
+      posX = this.max.x - rightmostPointAdjust;
+      x = this.max.x + this.containerOffset.left - this.scrollLeft;
     }
-    if (posY > that.max.y) {
-      posY = that.max.y;
-      y = that.max.y + that.containerOffset.top - that.scrollTop;
+    if (posY + height + bottommostPointAdjust > (this.max.y + height)) {
+      posY = this.max.y - bottommostPointAdjust;
+      y = this.max.y + this.containerOffset.top - this.scrollTop;
     }
   }
 
   // Show transform panel if element has moved
-  var startX = that.startX - that.adjust.x - that.containerOffset.left + that.scrollLeft;
-  var startY = that.startY - that.adjust.y - that.containerOffset.top + that.scrollTop;
-  if (!that.snap && (posX !== startX || posY !== startY)) {
-    that.trigger('showTransformPanel');
+  var startX = this.startX - this.adjust.x - this.containerOffset.left + this.scrollLeft;
+  var startY = this.startY - this.adjust.y - this.containerOffset.top + this.scrollTop;
+  if (!this.snap && (posX !== startX || posY !== startY)) {
+    this.trigger('showTransformPanel');
   }
-  else if (that.snap) {
-    var xChanged = (Math.round(posX / that.snap) * that.snap) !==
-      (Math.round(startX / that.snap) * that.snap);
-    var yChanged = (Math.round(posY / that.snap) * that.snap) !==
-      (Math.round(startY / that.snap) * that.snap);
+  else if (this.snap) {
+    var xChanged = (Math.round(posX / this.snap) * this.snap) !==
+      (Math.round(startX / this.snap) * this.snap);
+    var yChanged = (Math.round(posY / this.snap) * this.snap) !==
+      (Math.round(startY / this.snap) * this.snap);
     if (xChanged || yChanged) {
-      that.trigger('showTransformPanel');
+      this.trigger('showTransformPanel');
     }
   }
 
-  that.$element.css({left: posX, top: posY});
+  // Moving the element to the calculated position
+  this.$element.css({left: posX - transformCSSTranslateX, top: posY - transformCSSTranslateY});
 
-  if (that.dnb) {
-    that.dnb.updateCoordinates();
+  if (this.dnb) {
+    this.dnb.updateCoordinates();
   }
 
-  if (that.moveCallback !== undefined) {
-    that.moveCallback(x, y, that.$element);
+  if (this.moveCallback) {
+    this.moveCallback(x, y, this.$element);
   }
 };
+
+// Find position relative to origin by knowing origin, angle and distance
+H5P.DragNDrop.prototype.findNewPoint = function (originX, originY, angle, distance) {
+  
+  let result = [];
+  result.push(Math.cos(angle * Math.PI / 180) * distance + originX);
+  result.push(-Math.sin(angle * Math.PI / 180) * distance + originY);
+
+  return result;
+}
 
 /**
  * Stop tracking the mouse.
