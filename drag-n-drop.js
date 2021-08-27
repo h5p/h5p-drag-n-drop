@@ -3,11 +3,11 @@ var H5P = H5P || {};
 /**
  * A class that easily helps your create awesome drag and drop.
  *
- * @param {H5P.DragNBar} DnB
+ * @param {H5P.NDLADragNBar} DnB
  * @param {jQuery} $container
  * @returns {undefined}
  */
-H5P.DragNDrop = function (dnb, $container) {
+H5P.NDLADragNDrop = function (dnb, $container) {
   H5P.EventDispatcher.call(this);
   this.dnb = dnb;
   this.$container = $container;
@@ -16,8 +16,8 @@ H5P.DragNDrop = function (dnb, $container) {
 };
 
 // Inherit support for events
-H5P.DragNDrop.prototype = Object.create(H5P.EventDispatcher.prototype);
-H5P.DragNDrop.prototype.constructor = H5P.DragNDrop;
+H5P.NDLADragNDrop.prototype = Object.create(H5P.EventDispatcher.prototype);
+H5P.NDLADragNDrop.prototype.constructor = H5P.NDLADragNDrop;
 
 /**
  * Set the current element
@@ -25,7 +25,7 @@ H5P.DragNDrop.prototype.constructor = H5P.DragNDrop;
  * @method setElement
  * @param  {j@uery} $element
  */
-H5P.DragNDrop.prototype.setElement = function ($element) {
+H5P.NDLADragNDrop.prototype.setElement = function ($element) {
   this.$element = $element;
 };
 
@@ -37,15 +37,15 @@ H5P.DragNDrop.prototype.setElement = function ($element) {
  * @param {Number} y Start Y coordinate
  * @returns {undefined}
  */
-H5P.DragNDrop.prototype.press = function ($element, x, y) {
+H5P.NDLADragNDrop.prototype.press = function ($element, x, y) {
   var that = this;
   var eventData = {
     instance: this
   };
 
   H5P.$window
-    .mousemove(eventData, H5P.DragNDrop.moveHandler)
-    .bind('mouseup', eventData, H5P.DragNDrop.release);
+    .mousemove(eventData, H5P.NDLADragNDrop.moveHandler)
+    .bind('mouseup', eventData, H5P.NDLADragNDrop.release);
 
   H5P.$body
     // With user-select: none uncommented, after moving a drag and drop element, if I hover over something that changes transparancy on hover IE10 on WIN7 crashes
@@ -85,7 +85,7 @@ H5P.DragNDrop.prototype.press = function ($element, x, y) {
  *
  * @param {Event} event
  */
-H5P.DragNDrop.moveHandler = function (event) {
+H5P.NDLADragNDrop.moveHandler = function (event) {
   event.stopPropagation();
   event.data.instance.move(event.pageX, event.pageY);
 };
@@ -96,7 +96,7 @@ H5P.DragNDrop.moveHandler = function (event) {
  * @param {number} x
  * @param {number} y
  */
-H5P.DragNDrop.prototype.move = function (x, y) {  
+H5P.NDLADragNDrop.prototype.move = function (x, y) {  
   if (!this.moving) {
     if (this.startMovingCallback !== undefined && !this.startMovingCallback(x, y)) {
       return;
@@ -266,7 +266,7 @@ H5P.DragNDrop.prototype.move = function (x, y) {
 };
 
 // Find position relative to origin by knowing origin, angle and distance
-H5P.DragNDrop.prototype.findNewPoint = function (originX, originY, angle, distance) {
+H5P.NDLADragNDrop.prototype.findNewPoint = function (originX, originY, angle, distance) {
   
   let result = [];
   result.push(Math.cos(angle * Math.PI / 180) * distance + originX);
@@ -281,12 +281,12 @@ H5P.DragNDrop.prototype.findNewPoint = function (originX, originY, angle, distan
  * @param {Object} event
  * @returns {undefined}
  */
-H5P.DragNDrop.release = function (event) {
+H5P.NDLADragNDrop.release = function (event) {
   var that = event.data.instance;
 
   H5P.$window
-    .unbind('mousemove', H5P.DragNDrop.moveHandler)
-    .unbind('mouseup', H5P.DragNDrop.release);
+    .unbind('mousemove', H5P.NDLADragNDrop.moveHandler)
+    .unbind('mouseup', H5P.NDLADragNDrop.release);
 
   H5P.$body
     .css({'-moz-user-select': '', '-webkit-user-select': ''/*, 'user-select': '', '-ms-user-select': ''*/})
