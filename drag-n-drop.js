@@ -1,4 +1,4 @@
-var H5P = H5P || {};
+var H5P = window.H5P = window.H5P || {};
 
 /**
  * A class that easily helps your create awesome drag and drop.
